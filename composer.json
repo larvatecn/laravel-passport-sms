@@ -1,0 +1,31 @@
+{
+    "name": "larva/laravel-passport-sms",
+    "description": "This is a Laravel passport grant for the SMS.",
+    "keywords": [
+        "passport",
+        "laravel",
+        "sms"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "laravel/passport": "^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
+        "illuminate/support": "^5.0 || ^6.0 || ^7.0 || ^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Larva\\Passport\\Sms\\": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Larva\\Passport\\Sms\\SmsLoginGrantProvider"
+            ]
+        }
+    },
+    "prefer-stable": true
+}
