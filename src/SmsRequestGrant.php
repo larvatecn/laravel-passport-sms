@@ -83,6 +83,7 @@ class SmsRequestGrant extends AbstractGrant
      * @param \Illuminate\Http\Request $request
      *
      * @return \Laravel\Passport\Bridge\User|null
+     * @throws OAuthServerException
      */
     protected function getUserEntityByRequest(Request $request)
     {
