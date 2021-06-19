@@ -9,10 +9,10 @@ declare (strict_types=1);
 namespace Larva\Passport\Sms;
 
 use Exception;
+use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Bridge\RefreshTokenRepository;
 use Laravel\Passport\Bridge\UserRepository;
 use Laravel\Passport\Passport;
-use Laravel\Passport\PassportServiceProvider;
 use League\OAuth2\Server\AuthorizationServer;
 
 /**
@@ -20,18 +20,8 @@ use League\OAuth2\Server\AuthorizationServer;
  *
  * @author Tongle Xu <xutongle@gmail.com>
  */
-class PassportSmsGrantProvider extends PassportServiceProvider
+class PassportSmsGrantProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function boot()
-    {
-        $this->app->make(AuthorizationServer::class)->enableGrantType($this->makeGrant(), Passport::tokensExpireIn());
-    }
 
     /**
      * Register the service provider.
@@ -40,6 +30,9 @@ class PassportSmsGrantProvider extends PassportServiceProvider
      */
     public function register()
     {
+        $this->app->afterResolving(AuthorizationServer::class, function (AuthorizationServer $oauthServer) {
+            $oauthServer->enableGrantType($this->makeSmsGrant(), Passport::tokensExpireIn());
+        });
     }
 
     /**
@@ -48,7 +41,7 @@ class PassportSmsGrantProvider extends PassportServiceProvider
      * @return SmsGrant
      * @throws Exception
      */
-    protected function makeGrant(): SmsGrant
+    protected function makeSmsGrant(): SmsGrant
     {
         $grant = new SmsGrant(
             $this->app->make(UserRepository::class),
