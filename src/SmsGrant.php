@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Laravel\Passport\Bridge\User;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Grant\AbstractGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
@@ -32,7 +33,6 @@ class SmsGrant extends AbstractGrant
     /**
      * @param UserRepositoryInterface $userRepository
      * @param RefreshTokenRepositoryInterface $refreshTokenRepository
-     * @throws Exception
      */
     public function __construct(UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
@@ -51,7 +51,13 @@ class SmsGrant extends AbstractGrant
     }
 
     /**
+     * Respond to an incoming request.
+     * @param ServerRequestInterface $request
+     * @param ResponseTypeInterface $responseType
+     * @param DateInterval $accessTokenTTL
+     * @return ResponseTypeInterface
      * @throws OAuthServerException
+     * @throws UniqueTokenIdentifierConstraintViolationException
      */
     public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, DateInterval $accessTokenTTL): ResponseTypeInterface
     {
