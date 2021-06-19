@@ -16,11 +16,11 @@ use Laravel\Passport\PassportServiceProvider;
 use League\OAuth2\Server\AuthorizationServer;
 
 /**
- * Class SmsLoginGrantProvider
+ * Passport Sms Grant
  *
  * @author Tongle Xu <xutongle@gmail.com>
  */
-class SmsLoginGrantProvider extends PassportServiceProvider
+class PassportSmsGrantProvider extends PassportServiceProvider
 {
     /**
      * Bootstrap any application services.
@@ -30,7 +30,7 @@ class SmsLoginGrantProvider extends PassportServiceProvider
      */
     public function boot()
     {
-        $this->app->make(AuthorizationServer::class)->enableGrantType($this->makeRequestGrant(), Passport::tokensExpireIn());
+        $this->app->make(AuthorizationServer::class)->enableGrantType($this->makeGrant(), Passport::tokensExpireIn());
     }
 
     /**
@@ -45,12 +45,12 @@ class SmsLoginGrantProvider extends PassportServiceProvider
     /**
      * Create and configure a Password grant instance.
      *
-     * @return RequestGrant
+     * @return SmsGrant
      * @throws Exception
      */
-    protected function makeRequestGrant(): RequestGrant
+    protected function makeGrant(): SmsGrant
     {
-        $grant = new RequestGrant(
+        $grant = new SmsGrant(
             $this->app->make(UserRepository::class),
             $this->app->make(RefreshTokenRepository::class)
         );

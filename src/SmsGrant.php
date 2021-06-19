@@ -27,7 +27,7 @@ use RuntimeException;
  *
  * @author Tongle Xu <xutongle@gmail.com>
  */
-class RequestGrant extends AbstractGrant
+class SmsGrant extends AbstractGrant
 {
     /**
      * @param UserRepositoryInterface $userRepository

@@ -23,7 +23,7 @@
         },
         "laravel": {
             "providers": [
-                "Larva\\Passport\\Sms\\SmsLoginGrantProvider"
+                "Larva\\Passport\\Sms\\PassportSmsGrantProvider"
             ]
         }
     },
