@@ -30,7 +30,7 @@ class SmsLoginGrantProvider extends PassportServiceProvider
      */
     public function boot()
     {
-        $this->app->make(AuthorizationServer::class)->enableGrantType($this->makeSmsRequestGrant(), Passport::tokensExpireIn());
+        $this->app->make(AuthorizationServer::class)->enableGrantType($this->makeRequestGrant(), Passport::tokensExpireIn());
     }
 
     /**
@@ -45,12 +45,12 @@ class SmsLoginGrantProvider extends PassportServiceProvider
     /**
      * Create and configure a Password grant instance.
      *
-     * @return SmsRequestGrant
+     * @return RequestGrant
      * @throws Exception
      */
-    protected function makeSmsRequestGrant(): SmsRequestGrant
+    protected function makeRequestGrant(): RequestGrant
     {
-        $grant = new SmsRequestGrant(
+        $grant = new RequestGrant(
             $this->app->make(UserRepository::class),
             $this->app->make(RefreshTokenRepository::class)
         );

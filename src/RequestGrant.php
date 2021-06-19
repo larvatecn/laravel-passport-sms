@@ -27,7 +27,7 @@ use RuntimeException;
  *
  * @author Tongle Xu <xutongle@gmail.com>
  */
-class SmsRequestGrant extends AbstractGrant
+class RequestGrant extends AbstractGrant
 {
     /**
      * @param UserRepositoryInterface $userRepository
@@ -97,14 +97,14 @@ class SmsRequestGrant extends AbstractGrant
         if (is_null($model = config('auth.providers.' . $provider . '.model'))) {
             throw new RuntimeException('Unable to determine authentication model from configuration.');
         }
-        if (method_exists($model, 'findAndValidateForPassportPassportSmsRequest')) {
-            $user = (new $model)->findAndValidateForPassportPassportSmsRequest($request);
+        if (method_exists($model, 'findAndValidateForPassportSmsRequest')) {
+            $user = (new $model)->findAndValidateForPassportSmsRequest($request);
             if (!$user) {
                 return null;
             }
             return new User($user->getAuthIdentifier());
         } else {
-            throw new RuntimeException('Unable to find findAndValidateForPassportPassportSmsRequest method on user model.');
+            throw new RuntimeException('Unable to find findAndValidateForPassportSmsRequest method on user model.');
         }
     }
 }
