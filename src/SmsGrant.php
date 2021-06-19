@@ -9,9 +9,9 @@ declare (strict_types=1);
 namespace Larva\Passport\Sms;
 
 use DateInterval;
-use Exception;
 use Illuminate\Http\Request;
 use Laravel\Passport\Bridge\User;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -31,6 +31,7 @@ use RuntimeException;
 class SmsGrant extends AbstractGrant
 {
     /**
+     * SmsGrant constructor.
      * @param UserRepositoryInterface $userRepository
      * @param RefreshTokenRepositoryInterface $refreshTokenRepository
      */
@@ -64,7 +65,7 @@ class SmsGrant extends AbstractGrant
         // Validate request
         $client = $this->validateClient($request);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request));
-        $user = $this->validateUser($request);
+        $user = $this->validateUser($request, $client);
 
         // Finalize the requested scopes
         $scopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getIdentifier());
@@ -81,11 +82,13 @@ class SmsGrant extends AbstractGrant
     }
 
     /**
+     * 验证用户
      * @param ServerRequestInterface $request
+     * @param ClientEntityInterface $client
      * @return UserEntityInterface
      * @throws OAuthServerException
      */
-    protected function validateUser(ServerRequestInterface $request): UserEntityInterface
+    protected function validateUser(ServerRequestInterface $request, ClientEntityInterface $client): UserEntityInterface
     {
         $laravelRequest = new Request($request->getParsedBody());
         $user = $this->getUserEntityByRequest($laravelRequest);
@@ -101,12 +104,13 @@ class SmsGrant extends AbstractGrant
      *
      * @param Request $request
      * @return User|null
+     * @throws OAuthServerException
      */
     protected function getUserEntityByRequest(Request $request): ?User
     {
         $provider = config('auth.guards.api.provider');
         if (is_null($model = config('auth.providers.' . $provider . '.model'))) {
-            throw new RuntimeException('Unable to determine authentication model from configuration.');
+            throw OAuthServerException::serverError('Unable to determine authentication model from configuration.');
         }
         if (method_exists($model, 'findAndValidateForPassportSmsRequest')) {
             $user = (new $model)->findAndValidateForPassportSmsRequest($request);
@@ -115,7 +119,7 @@ class SmsGrant extends AbstractGrant
             }
             return new User($user->getAuthIdentifier());
         } else {
-            throw new RuntimeException('Unable to find findAndValidateForPassportSmsRequest method on user model.');
+            throw OAuthServerException::serverError('Unable to find findAndValidateForPassportSmsRequest method on user model.');
         }
     }
 }
