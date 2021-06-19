@@ -42,6 +42,15 @@ class RequestGrant extends AbstractGrant
     }
 
     /**
+     * 获取标识
+     * @return string
+     */
+    public function getIdentifier(): string
+    {
+        return 'sms';
+    }
+
+    /**
      * @throws OAuthServerException
      */
     public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, DateInterval $accessTokenTTL): ResponseTypeInterface
@@ -50,23 +59,19 @@ class RequestGrant extends AbstractGrant
         $client = $this->validateClient($request);
         $scopes = $this->validateScopes($this->getRequestParameter('scope', $request));
         $user = $this->validateUser($request);
+
         // Finalize the requested scopes
         $scopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $user->getIdentifier());
+
         // Issue and persist new tokens
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $user->getIdentifier(), $scopes);
         $refreshToken = $this->issueRefreshToken($accessToken);
+
         // Inject tokens into response
         $responseType->setAccessToken($accessToken);
         $responseType->setRefreshToken($refreshToken);
-        return $responseType;
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getIdentifier(): string
-    {
-        return 'sms';
+        return $responseType;
     }
 
     /**
