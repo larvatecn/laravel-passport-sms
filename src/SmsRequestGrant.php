@@ -1,7 +1,15 @@
 <?php
+/**
+ * This is NOT a freeware, use is subject to license terms
+ * @copyright Copyright (c) 2010-2099 Jinan Larva Information Technology Co., Ltd.
+ * @link http://www.larva.com.cn/
+ */
+declare (strict_types=1);
 
 namespace Larva\Passport\Sms;
 
+use DateInterval;
+use Exception;
 use Illuminate\Http\Request;
 use Laravel\Passport\Bridge\User;
 use League\OAuth2\Server\Entities\UserEntityInterface;
@@ -12,6 +20,7 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 
 /**
  * Class SmsRequestGrant
@@ -23,19 +32,19 @@ class SmsRequestGrant extends AbstractGrant
     /**
      * @param UserRepositoryInterface $userRepository
      * @param RefreshTokenRepositoryInterface $refreshTokenRepository
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
         $this->setUserRepository($userRepository);
         $this->setRefreshTokenRepository($refreshTokenRepository);
-        $this->refreshTokenTTL = new \DateInterval('P1M');
+        $this->refreshTokenTTL = new DateInterval('P1M');
     }
 
     /**
      * @throws OAuthServerException
      */
-    public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, \DateInterval $accessTokenTTL)
+    public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, DateInterval $accessTokenTTL): ResponseTypeInterface
     {
         // Validate request
         $client = $this->validateClient($request);
@@ -55,18 +64,17 @@ class SmsRequestGrant extends AbstractGrant
     /**
      * {@inheritdoc}
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return 'sms';
     }
 
     /**
      * @param ServerRequestInterface $request
-     *
      * @return UserEntityInterface
      * @throws OAuthServerException
      */
-    protected function validateUser(ServerRequestInterface $request)
+    protected function validateUser(ServerRequestInterface $request): UserEntityInterface
     {
         $laravelRequest = new Request($request->getParsedBody());
         $user = $this->getUserEntityByRequest($laravelRequest);
@@ -80,22 +88,23 @@ class SmsRequestGrant extends AbstractGrant
     /**
      * Retrieve user by request.
      *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Laravel\Passport\Bridge\User|null
-     * @throws OAuthServerException
+     * @param Request $request
+     * @return User|null
      */
-    protected function getUserEntityByRequest(Request $request)
+    protected function getUserEntityByRequest(Request $request): ?User
     {
-        if (is_null($model = config('auth.providers.users.model'))) {
-            throw OAuthServerException::serverError('Unable to determine user model from configuration.');
+        $provider = config('auth.guards.api.provider');
+        if (is_null($model = config('auth.providers.' . $provider . '.model'))) {
+            throw new RuntimeException('Unable to determine authentication model from configuration.');
         }
-        //Validator
-        if (method_exists($model, 'findForPassportSmsRequest')) {
-            $user = $model::findForPassportSmsRequest($request);
+        if (method_exists($model, 'findAndValidateForPassportPassportSmsRequest')) {
+            $user = (new $model)->findAndValidateForPassportPassportSmsRequest($request);
+            if (!$user) {
+                return null;
+            }
+            return new User($user->getAuthIdentifier());
         } else {
-            throw OAuthServerException::serverError('Unable to find byPassportSmsRequest method on user model.');
+            throw new RuntimeException('Unable to find findAndValidateForPassportPassportSmsRequest method on user model.');
         }
-        return ($user) ? new User($user->id) : null;
     }
 }
