@@ -112,8 +112,8 @@ class SmsGrant extends AbstractGrant
         if (is_null($model = config('auth.providers.' . $provider . '.model'))) {
             throw OAuthServerException::serverError('Unable to determine authentication model from configuration.');
         }
-        if (method_exists($model, 'findAndValidateForPassportSmsRequest')) {
-            $user = (new $model)->findAndValidateForPassportSmsRequest($request);
+        if (method_exists($model, 'findAndValidateForPassportSms')) {
+            $user = (new $model)->findAndValidateForPassportSms($request);
             if (!$user) {
                 return null;
             }
