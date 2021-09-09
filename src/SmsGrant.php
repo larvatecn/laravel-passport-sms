@@ -119,7 +119,7 @@ class SmsGrant extends AbstractGrant
             }
             return new User($user->getAuthIdentifier());
         } else {
-            throw OAuthServerException::serverError('Unable to find findAndValidateForPassportSmsRequest method on user model.');
+            throw OAuthServerException::serverError('Unable to find findAndValidateForPassportSms method on user model.');
         }
     }
 }
