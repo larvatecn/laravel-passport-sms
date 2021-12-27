@@ -25,7 +25,7 @@ In Laravel 5.5 the service provider will automatically get registered. In older 
 
 * Make a POST request to https://your-site.com/oauth/token, just like you would a Password or Refresh grant.
 * The POST body should contain grant_type = sms.
-* The request will get routed to your User::findForPassportSmsRequest() function, where you will determine if access should be granted or not.
+* The request will get routed to your User::findAndValidateForPassportSms() function, where you will determine if access should be granted or not.
 * An access_token and refresh_token will be returned if successful.
 
 ## Request
@@ -43,7 +43,7 @@ $response = $http->post('http://your-app.com/oauth/token', [
 
 ## Example
 
-Here is what a `User::findForPassportSmsRequest()` method might look like...
+Here is what a `User::findAndValidateForPassportSms()` method might look like...
 
 ```php
 /**
@@ -54,7 +54,7 @@ Here is what a `User::findForPassportSmsRequest()` method might look like...
  * @return \Illuminate\Database\Eloquent\Model|null
  * @throws \League\OAuth2\Server\Exception\OAuthServerException
  */
-public function byPassportSmsequest(Request $request)
+public function findAndValidateForPassportSms(Request $request)
 {
     try {
                 Validator::make($request->all(), [
